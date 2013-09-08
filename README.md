@@ -21,7 +21,7 @@ Refer to the [Issue Tracker](https://github.com/mj1856/NodaTime.Humanization/iss
 ### Contributing
 
 - Feel free to pick up any of the items on the issue tracker or add your own.
-- Fork the project and send a PR request with any changes.
+- Fork the project and send a pull request with any changes.
 - If you have questions, please use the issue tracker so everyone can participate.
 - By contributing, you agree that your contributions are released to the public for inclusion in this library,
   which is released under the MIT license.
