@@ -1,8 +1,12 @@
 ﻿using NUnit.Framework;
+using System;
+using System.Threading;
 
 namespace NodaTime.Humanization.Test.SingleUnit
 {
     [TestFixture]
+    [SetCulture("en-US")]
+    [SetUICulture("en")]
     public class DayTests
     {
         [Test]

@@ -15,13 +15,13 @@ namespace NodaTime.Humanization
             var now = clock.Now;
 
             if (instant == now)
-                return "right now";
+                return Properties.Resources.RightNow;
 
             var periodText = GetRelativeTime(instant, now, maxTerms, countWeeks);
 
             return instant < now
-                ? periodText + " ago"
-                : "in " + periodText;
+                ? String.Format(Properties.Resources.PeriodPast, periodText)
+                : String.Format(Properties.Resources.PeriodFuture, periodText);
         }
 
         public static string GetRelativeTime(Instant start, Instant end, int maxTerms = 1, bool countWeeks = false)
@@ -92,8 +92,8 @@ namespace NodaTime.Humanization
 
                 if (sb.Length > 0)
                 {
-                    sb.Replace(" and ", ", ");
-                    sb.Append(" and ");
+                    sb.Replace(String.Format(" {0} ", Properties.Resources.And), ", ");
+                    sb.AppendFormat(" {0} ", Properties.Resources.And);
                 }
 
                 terms++;
@@ -135,21 +135,83 @@ namespace NodaTime.Humanization
                     }
                 }
 
-                var valueText = value.ToString("0.#");
-                var unitText = unit.ToString().ToLower();
+                var textValue = value.ToString("0.#");
 
-                if (valueText == "1")
-                {
-                    valueText = unit == PeriodUnits.Hours ? "an" : "a";
-                    unitText = unitText.TrimEnd('s');
-                }
-
-                sb.AppendFormat("{0} {1}", valueText, unitText);
+                sb.Append(GetTextForUnit(unit, textValue));
 
                 if (terms == maxTerms) break;
             }
 
             return sb.ToString();
+        }
+
+        private static String GetTextForUnit(PeriodUnits unit, String textValue)
+        {
+            //Depending on singular or plural, fetch different properties
+            if (textValue == "1")
+            {
+                return GetTextForUnitSingular(unit);
+            }
+            else
+            {
+                return String.Format(GetTextForUnitPlural(unit), textValue);
+            }
+        }
+
+        private static String GetTextForUnitSingular(PeriodUnits unit)
+        {
+            switch (unit)
+            {
+                case PeriodUnits.Days:
+                    return Properties.Resources.OneDay;
+                case PeriodUnits.Hours:
+                    return Properties.Resources.OneHour;
+                case PeriodUnits.Milliseconds:
+                    return Properties.Resources.OneMillisecond;
+                case PeriodUnits.Minutes:
+                    return Properties.Resources.OneMinute;
+                case PeriodUnits.Months:
+                    return Properties.Resources.OneMonth;
+                case PeriodUnits.Seconds:
+                    return Properties.Resources.OneSecond;
+                case PeriodUnits.Ticks:
+                    return Properties.Resources.OneTick;
+                case PeriodUnits.Weeks:
+                    return Properties.Resources.OneWeek;
+                case PeriodUnits.Years:
+                    return Properties.Resources.OneYear;
+                default:
+                    //Shouldnt land in here...
+                    return String.Empty;
+            }
+        }
+
+        private static String GetTextForUnitPlural(PeriodUnits unit)
+        {
+            switch (unit)
+            {
+                case PeriodUnits.Days:
+                    return Properties.Resources.ManyDays;
+                case PeriodUnits.Hours:
+                    return Properties.Resources.ManyHours;
+                case PeriodUnits.Milliseconds:
+                    return Properties.Resources.ManyMilliseconds;
+                case PeriodUnits.Minutes:
+                    return Properties.Resources.ManyMinutes;
+                case PeriodUnits.Months:
+                    return Properties.Resources.ManyMonths;
+                case PeriodUnits.Seconds:
+                    return Properties.Resources.ManySeconds;
+                case PeriodUnits.Ticks:
+                    return Properties.Resources.ManyTicks;
+                case PeriodUnits.Weeks:
+                    return Properties.Resources.ManyWeeks;
+                case PeriodUnits.Years:
+                    return Properties.Resources.ManyYears;
+                default:
+                    //Shouldnt land in here...
+                    return String.Empty;
+            }
         }
     }
 }
