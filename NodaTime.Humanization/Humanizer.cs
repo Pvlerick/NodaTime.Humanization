@@ -1,65 +1,75 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace NodaTime.Humanization
 {
     public static class Humanizer
     {
-        public static string GetRelativeTime(Instant instant, int maxTerms = 1, bool countWeeks = false)
+        public static string GetRelativeTime(Instant instant, int maxTerms = 1)
         {
-            return GetRelativeTime(instant, SystemClock.Instance, maxTerms, countWeeks);
+            return GetRelativeTime(instant, SystemClock.Instance, maxTerms);
         }
 
-        public static string GetRelativeTime(Instant instant, IClock clock, int maxTerms = 1, bool countWeeks = false)
+        public static string GetRelativeTime(Instant instant, IClock clock, int maxTerms = 1)
         {
             var now = clock.Now;
 
             if (instant == now)
                 return Properties.Resources.RightNow;
 
-            var periodText = GetRelativeTime(instant, now, maxTerms, countWeeks);
+            var periodText = GetRelativeTime(instant, now, maxTerms);
 
             return instant < now
                 ? String.Format(Properties.Resources.PeriodPast, periodText)
                 : String.Format(Properties.Resources.PeriodFuture, periodText);
         }
 
-        public static string GetRelativeTime(Instant start, Instant end, int maxTerms = 1, bool countWeeks = false)
+        public static string GetRelativeTime(Instant start, Instant end, int maxTerms = 1)
         {
-            return GetRelativeTime(start.InUtc().LocalDateTime, end.InUtc().LocalDateTime, maxTerms, countWeeks);
+            return GetRelativeTime(start.InUtc().LocalDateTime, end.InUtc().LocalDateTime, maxTerms);
         }
 
-        public static string GetRelativeTime(OffsetDateTime start, OffsetDateTime end, int maxTerms = 1, bool countWeeks = false)
+        public static string GetRelativeTime(OffsetDateTime start, OffsetDateTime end, int maxTerms = 1)
         {
-            return GetRelativeTime(start.LocalDateTime, end.SwitchOffset(start.Offset).LocalDateTime, maxTerms, countWeeks);
+            return GetRelativeTime(start.LocalDateTime, end.SwitchOffset(start.Offset).LocalDateTime, maxTerms);
         }
 
-        public static string GetRelativeTime(ZonedDateTime start, ZonedDateTime end, int maxTerms = 1, bool countWeeks = false)
+        public static string GetRelativeTime(ZonedDateTime start, ZonedDateTime end, int maxTerms = 1)
         {
-            return GetRelativeTime(start.LocalDateTime, end.ToOffsetDateTime().SwitchOffset(start.Offset).LocalDateTime, maxTerms, countWeeks);
+            return GetRelativeTime(start.LocalDateTime, end.ToOffsetDateTime().SwitchOffset(start.Offset).LocalDateTime, maxTerms);
         }
 
-        public static string GetRelativeTime(LocalDate start, LocalDate end, int maxTerms = 1, bool countWeeks = false)
+        public static string GetRelativeTime(LocalDate start, LocalDate end, int maxTerms = 1)
         {
             if (maxTerms < 1 || maxTerms > 3)
                 throw new ArgumentOutOfRangeException("maxTerms", "maxTerms must be between 1 and 3 when passing LocalDate values.");
 
-            return GetRelativeTime(start.AtMidnight(), end.AtMidnight(), maxTerms, countWeeks);
+            return GetRelativeTime(start.AtMidnight(), end.AtMidnight(), maxTerms);
         }
 
-        public static string GetRelativeTime(LocalTime start, LocalTime end, int maxTerms = 1, bool countWeeks = false)
+        public static string GetRelativeTime(LocalTime start, LocalTime end, int maxTerms = 1)
+        {
+            return GetRelativeTime(start, end, PeriodUnits.DateAndTime, maxTerms);
+        }
+
+        public static string GetRelativeTime(LocalTime start, LocalTime end, PeriodUnits unitsToDisplay, int maxTerms = 1)
         {
             if (maxTerms < 1 || maxTerms > 3)
                 throw new ArgumentOutOfRangeException("maxTerms", "maxTerms must be between 1 and 3 when passing LocalTime values.");
 
-            return GetRelativeTime(start.LocalDateTime, end.LocalDateTime, maxTerms, countWeeks);
+            return GetRelativeTime(start.LocalDateTime, end.LocalDateTime, unitsToDisplay, maxTerms);
         }
 
-        public static string GetRelativeTime(LocalDateTime start, LocalDateTime end, int maxTerms = 1, bool countWeeks = false)
+        public static string GetRelativeTime(LocalDateTime start, LocalDateTime end, int maxTerms = 1)
         {
-            if (maxTerms < 1 || maxTerms > (countWeeks ? 7 : 6))
-                throw new ArgumentOutOfRangeException("maxTerms", "maxTerms must be between 1 and 6, or 7 if weeks are counted.");
+            return GetRelativeTime(start, end, PeriodUnits.DateAndTime, maxTerms);
+        }
 
+        public static string GetRelativeTime(LocalDateTime start, LocalDateTime end, PeriodUnits unitsToDisplay, int maxTerms = 1)
+        {
             if (start > end)
             {
                 var t = end;
@@ -67,24 +77,12 @@ namespace NodaTime.Humanization
                 start = t;
             }
 
-            var period = Period.Between(start, end, countWeeks ? PeriodUnits.AllUnits : PeriodUnits.DateAndTime);
+            var period = Period.Between(start, end, unitsToDisplay);
             var periodBuilder = period.ToBuilder();
-
-            var units = countWeeks
-                ? new[]
-                  {
-                      PeriodUnits.Years, PeriodUnits.Months, PeriodUnits.Weeks, PeriodUnits.Days,
-                      PeriodUnits.Hours, PeriodUnits.Minutes, PeriodUnits.Seconds
-                  }
-                : new[]
-                  {
-                      PeriodUnits.Years, PeriodUnits.Months, PeriodUnits.Days,
-                      PeriodUnits.Hours, PeriodUnits.Minutes, PeriodUnits.Seconds
-                  };
 
             int terms = 0;
             var sb = new StringBuilder();
-            foreach (var unit in units)
+            foreach (var unit in GetIndividualUnits(unitsToDisplay))
             {
                 var value = (decimal)periodBuilder[unit];
                 if (value == 0)
@@ -108,7 +106,7 @@ namespace NodaTime.Humanization
                         case PeriodUnits.Months:
                             // when counting by months, we give fractions in terms of the month we didn't complete.
                             var daysInEndMonth = end.Calendar.GetDaysInMonth(end.Year, end.Month);
-                            value += period.Days / (decimal) daysInEndMonth;
+                            value += period.Days / (decimal)daysInEndMonth;
                             break;
 
                         case PeriodUnits.Weeks:
@@ -143,6 +141,44 @@ namespace NodaTime.Humanization
             }
 
             return sb.ToString();
+        }
+
+        private static IEnumerable<PeriodUnits> GetIndividualUnits(PeriodUnits units)
+        {
+            foreach (PeriodUnits unit in Enum.GetValues(typeof(PeriodUnits)))
+            {
+                if ((units & unit) == unit) //Logical AND to find the present units
+                {
+                    //Only return the units that are useful, the rest is ignored
+                    switch (unit)
+                    {
+                        case PeriodUnits.Years:
+                            yield return PeriodUnits.Years;
+                            break;
+                        case PeriodUnits.Months:
+                            yield return PeriodUnits.Months;
+                            break;
+                        case PeriodUnits.Weeks:
+                            yield return PeriodUnits.Weeks;
+                            break;
+                        case PeriodUnits.Days:
+                            yield return PeriodUnits.Days;
+                            break;
+                        case PeriodUnits.Hours:
+                            yield return PeriodUnits.Hours;
+                            break;
+                        case PeriodUnits.Minutes:
+                            yield return PeriodUnits.Minutes;
+                            break;
+                        case PeriodUnits.Seconds:
+                            yield return PeriodUnits.Seconds;
+                            break;
+                        case PeriodUnits.Milliseconds:
+                            yield return PeriodUnits.Milliseconds;
+                            break;
+                    }
+                }
+            }
         }
 
         private static String GetTextForUnit(PeriodUnits unit, String textValue)

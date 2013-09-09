@@ -32,5 +32,16 @@ namespace NodaTime.Humanization.Test.ThreeUnit.Fr
 
             Assert.AreEqual("a year, a month and a day", result);
         }
+
+        [Test]
+        public void Can_Get_Relative_Time_For_One_Year_Two_Months_Five_Days_Only_Display_YearsDays()
+        {
+            var start = new LocalDateTime(2013, 1, 1, 0, 0);
+            var end = new LocalDateTime(2014, 3, 6, 0, 0);
+
+            var result = Humanizer.GetRelativeTime(start, end, PeriodUnits.Years | PeriodUnits.Days, 2);
+
+            Assert.AreEqual("a year and 64 days", result);
+        }
     }
 }
