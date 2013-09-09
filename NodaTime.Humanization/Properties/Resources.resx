@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="And" xml:space="preserve">
+    <value>and</value>
+  </data>
   <data name="ManyDays" xml:space="preserve">
     <value>{0} days</value>
   </data>
@@ -134,7 +137,6 @@
   </data>
   <data name="ManySeconds" xml:space="preserve">
     <value>{0} seconds</value>
-    <comment> </comment>
   </data>
   <data name="ManyTicks" xml:space="preserve">
     <value>{0} ticks</value>

@@ -3,6 +3,8 @@
 namespace NodaTime.Humanization.Test.TwoUnit
 {
     [TestFixture]
+    [SetCulture("en-US")]
+    [SetUICulture("en")]
     public class YearMonthTests
     {
         [Test]

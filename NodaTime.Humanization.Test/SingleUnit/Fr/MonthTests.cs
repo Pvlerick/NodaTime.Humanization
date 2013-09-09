@@ -1,10 +1,10 @@
 ﻿using NUnit.Framework;
 
-namespace NodaTime.Humanization.Test.SingleUnit
+namespace NodaTime.Humanization.Test.SingleUnit.Fr
 {
     [TestFixture]
-    [SetCulture("en-US")]
-    [SetUICulture("en")]
+    [SetCulture("fr-FR")]
+    [SetUICulture("fr")]
     public class MonthTests
     {
         [Test]
@@ -15,7 +15,7 @@ namespace NodaTime.Humanization.Test.SingleUnit
 
             var result = Humanizer.GetRelativeTime(start, end);
 
-            Assert.AreEqual("a month", result);
+            Assert.AreEqual("un mois", result);
         }
 
         [Test]
@@ -26,7 +26,7 @@ namespace NodaTime.Humanization.Test.SingleUnit
 
             var result = Humanizer.GetRelativeTime(start, end);
 
-            Assert.AreEqual("1.5 months", result);
+            Assert.AreEqual("1,5 mois", result);
         }
 
         [Test]
@@ -37,7 +37,7 @@ namespace NodaTime.Humanization.Test.SingleUnit
 
             var result = Humanizer.GetRelativeTime(start, end);
 
-            Assert.AreEqual("2 months", result);
+            Assert.AreEqual("2 mois", result);
         }
     }
 }

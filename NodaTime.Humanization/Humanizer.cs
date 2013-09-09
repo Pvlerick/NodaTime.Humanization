@@ -92,8 +92,8 @@ namespace NodaTime.Humanization
 
                 if (sb.Length > 0)
                 {
-                    sb.Replace(" and ", ", ");
-                    sb.Append(" and ");
+                    sb.Replace(String.Format(" {0} ", Properties.Resources.And), ", ");
+                    sb.AppendFormat(" {0} ", Properties.Resources.And);
                 }
 
                 terms++;
