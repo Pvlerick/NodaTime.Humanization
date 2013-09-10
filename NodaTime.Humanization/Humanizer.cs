@@ -89,7 +89,7 @@ namespace NodaTime.Humanization
 
             int terms = 0;
             var sb = new StringBuilder();
-            foreach (var unit in GetIndividualUnits(this.UnitsToDisplay))
+            foreach (var unit in this.GetIndividualUnitsToDisplay())
             {
                 var value = (decimal)periodBuilder[unit];
                 if (value == 0)
@@ -150,11 +150,11 @@ namespace NodaTime.Humanization
             return sb.ToString();
         }
 
-        private IEnumerable<PeriodUnits> GetIndividualUnits(PeriodUnits units)
+        private IEnumerable<PeriodUnits> GetIndividualUnitsToDisplay()
         {
             foreach (PeriodUnits unit in Enum.GetValues(typeof(PeriodUnits)))
             {
-                if ((units & unit) == unit) //Logical AND to find the present units
+                if ((this.UnitsToDisplay & unit) == unit) //Logical AND to find the present units
                 {
                     //Only return the units that are useful, the rest is ignored
                     switch (unit)

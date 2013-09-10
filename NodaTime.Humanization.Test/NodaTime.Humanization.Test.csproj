@@ -48,6 +48,7 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="FiveUnit\YearMonthDayHourMinuteTests.cs" />
     <Compile Include="SingleUnit\Fr\MonthTests.cs" />
     <Compile Include="SingleUnit\WeekTests.cs" />
     <Compile Include="SingleUnit\SecondTests.cs" />
