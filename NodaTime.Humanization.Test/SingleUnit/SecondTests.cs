@@ -7,13 +7,15 @@ namespace NodaTime.Humanization.Test.SingleUnit
     [SetUICulture("en")]
     public class SecondTests
     {
+        static Humanizer humanizer = new Humanizer(1);
+
         [Test]
         public void Can_Get_Relative_Time_For_One_Second()
         {
             var start = new LocalDateTime(2013, 1, 1, 0, 0, 0);
             var end = new LocalDateTime(2013, 1, 1, 0, 0, 1);
 
-            var result = Humanizer.GetRelativeTime(start, end);
+            var result = new Humanizer(1).GetRelativeTime(start, end);
 
             Assert.AreEqual("a second", result);
         }
@@ -24,7 +26,7 @@ namespace NodaTime.Humanization.Test.SingleUnit
             var start = new LocalDateTime(2013, 1, 1, 0, 0, 0, 0);
             var end = new LocalDateTime(2013, 1, 1, 0, 0, 1, 499);
 
-            var result = Humanizer.GetRelativeTime(start, end);
+            var result = new Humanizer(1).GetRelativeTime(start, end);
 
             Assert.AreEqual("a second", result); // Should Round Down
         }
@@ -35,7 +37,7 @@ namespace NodaTime.Humanization.Test.SingleUnit
             var start = new LocalDateTime(2013, 1, 1, 0, 0, 0, 0);
             var end = new LocalDateTime(2013, 1, 1, 0, 0, 1, 500);
 
-            var result = Humanizer.GetRelativeTime(start, end);
+            var result = new Humanizer(1).GetRelativeTime(start, end);
 
             Assert.AreEqual("2 seconds", result); // Should Round Up
         }
@@ -46,7 +48,7 @@ namespace NodaTime.Humanization.Test.SingleUnit
             var start = new LocalDateTime(2013, 1, 1, 0, 0, 0);
             var end = new LocalDateTime(2013, 1, 1, 0, 0, 2);
 
-            var result = Humanizer.GetRelativeTime(start, end);
+            var result = humanizer.GetRelativeTime(start, end);
 
             Assert.AreEqual("2 seconds", result);
         }

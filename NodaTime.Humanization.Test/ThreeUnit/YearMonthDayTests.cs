@@ -17,7 +17,7 @@ namespace NodaTime.Humanization.Test.ThreeUnit.Fr
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2015, 2, 7, 0, 0);
 
-            var result = Humanizer.GetRelativeTime(start, end, 3);
+            var result = new Humanizer(3).GetRelativeTime(start, end);
 
             Assert.AreEqual("2 years, a month and 6 days", result);
         }
@@ -28,7 +28,7 @@ namespace NodaTime.Humanization.Test.ThreeUnit.Fr
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2014, 2, 2, 0, 0);
 
-            var result = Humanizer.GetRelativeTime(start, end, 3);
+            var result = new Humanizer(3).GetRelativeTime(start, end);
 
             Assert.AreEqual("a year, a month and a day", result);
         }
@@ -39,9 +39,31 @@ namespace NodaTime.Humanization.Test.ThreeUnit.Fr
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2014, 3, 6, 0, 0);
 
-            var result = Humanizer.GetRelativeTime(start, end, PeriodUnits.Years | PeriodUnits.Days, 2);
+            var result = new Humanizer(PeriodUnits.Years | PeriodUnits.Days).GetRelativeTime(start, end);
 
             Assert.AreEqual("a year and 64 days", result);
+        }
+
+        [Test]
+        public void Can_Get_Relative_Time_For_One_Year_Two_Months_Five_Days_Limit_To_YearsMonths()
+        {
+            var start = new LocalDateTime(2013, 1, 1, 0, 0);
+            var end = new LocalDateTime(2014, 3, 6, 0, 0);
+
+            var result = new Humanizer(PeriodUnits.Years | PeriodUnits.Months).GetRelativeTime(start, end);
+
+            Assert.AreEqual("a year and 2.2 months", result);
+        }
+
+        [Test]
+        public void Can_Get_Relative_Time_For_One_Year_Two_Months_Five_Days_Limit_To_TwoUnits()
+        {
+            var start = new LocalDateTime(2013, 1, 1, 0, 0);
+            var end = new LocalDateTime(2014, 3, 6, 0, 0);
+
+            var result = new Humanizer(2).GetRelativeTime(start, end);
+
+            Assert.AreEqual("a year and 2.2 months", result);
         }
     }
 }

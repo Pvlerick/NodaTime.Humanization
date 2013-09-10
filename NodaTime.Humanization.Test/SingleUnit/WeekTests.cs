@@ -7,13 +7,15 @@ namespace NodaTime.Humanization.Test.SingleUnit
     [SetUICulture("en")]
     public class WeekTests
     {
+        static Humanizer humanizer = new Humanizer(1);
+
         [Test]
         public void Can_Get_Relative_Time_For_One_Week()
         {
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2013, 1, 8, 0, 0);
 
-            var result = Humanizer.GetRelativeTime(start, end, PeriodUnits.AllUnits);
+            var result = new Humanizer(PeriodUnits.AllUnits, 1).GetRelativeTime(start, end);
 
             Assert.AreEqual("a week", result);
         }
@@ -24,7 +26,7 @@ namespace NodaTime.Humanization.Test.SingleUnit
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2013, 1, 11, 12, 0);
 
-            var result = Humanizer.GetRelativeTime(start, end, PeriodUnits.AllUnits);
+            var result = new Humanizer(PeriodUnits.AllUnits, 1).GetRelativeTime(start, end);
 
             Assert.AreEqual("1.5 weeks", result);
         }
@@ -35,7 +37,7 @@ namespace NodaTime.Humanization.Test.SingleUnit
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2013, 1, 15, 0, 0);
 
-            var result = Humanizer.GetRelativeTime(start, end, PeriodUnits.AllUnits);
+            var result = new Humanizer(PeriodUnits.AllUnits, 1).GetRelativeTime(start, end);
 
             Assert.AreEqual("2 weeks", result);
         }

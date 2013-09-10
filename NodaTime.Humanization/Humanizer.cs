@@ -6,69 +6,76 @@ using System.Text;
 
 namespace NodaTime.Humanization
 {
-    public static class Humanizer
+    public sealed class Humanizer
     {
-        public static string GetRelativeTime(Instant instant, int maxTerms = 1)
+        const PeriodUnits DefaultUnitsToDisplay = PeriodUnits.DateAndTime;
+        const int DefaultMaximumNumberOfUnitsToDisplay = 10;
+
+        public PeriodUnits UnitsToDisplay { get; private set; }
+        public int MaxiumumNumberOfUnitsToDisplay { get; private set; }
+
+        public Humanizer() : this(DefaultUnitsToDisplay, DefaultMaximumNumberOfUnitsToDisplay) { }
+
+        public Humanizer(PeriodUnits unitsToDisplay) : this(unitsToDisplay, DefaultMaximumNumberOfUnitsToDisplay) { }
+
+        public Humanizer(int maximumNumberOfUnitsToDisplay) : this(DefaultUnitsToDisplay, maximumNumberOfUnitsToDisplay) { }
+
+        public Humanizer(PeriodUnits unitsToDisplay, int maximumNumberOfUnitsToDisplay)
         {
-            return GetRelativeTime(instant, SystemClock.Instance, maxTerms);
+            if (maximumNumberOfUnitsToDisplay < 1)
+            {
+                throw new ArgumentOutOfRangeException("maximumNumberOfUnitsToDisplay", "maximumNumberOfUnitsToDisplay must be positive.");
+            }
+
+            this.UnitsToDisplay = unitsToDisplay;
+            this.MaxiumumNumberOfUnitsToDisplay = maximumNumberOfUnitsToDisplay;
         }
 
-        public static string GetRelativeTime(Instant instant, IClock clock, int maxTerms = 1)
+        public string GetRelativeTime(Instant instant)
+        {
+            return GetRelativeTime(instant, SystemClock.Instance);
+        }
+
+        public string GetRelativeTime(Instant instant, IClock clock)
         {
             var now = clock.Now;
 
             if (instant == now)
                 return Properties.Resources.RightNow;
 
-            var periodText = GetRelativeTime(instant, now, maxTerms);
+            var periodText = GetRelativeTime(instant, now);
 
             return instant < now
                 ? String.Format(Properties.Resources.PeriodPast, periodText)
                 : String.Format(Properties.Resources.PeriodFuture, periodText);
         }
 
-        public static string GetRelativeTime(Instant start, Instant end, int maxTerms = 1)
+        public string GetRelativeTime(Instant start, Instant end)
         {
-            return GetRelativeTime(start.InUtc().LocalDateTime, end.InUtc().LocalDateTime, maxTerms);
+            return GetRelativeTime(start.InUtc().LocalDateTime, end.InUtc().LocalDateTime);
         }
 
-        public static string GetRelativeTime(OffsetDateTime start, OffsetDateTime end, int maxTerms = 1)
+        public string GetRelativeTime(OffsetDateTime start, OffsetDateTime end)
         {
-            return GetRelativeTime(start.LocalDateTime, end.SwitchOffset(start.Offset).LocalDateTime, maxTerms);
+            return GetRelativeTime(start.LocalDateTime, end.SwitchOffset(start.Offset).LocalDateTime);
         }
 
-        public static string GetRelativeTime(ZonedDateTime start, ZonedDateTime end, int maxTerms = 1)
+        public string GetRelativeTime(ZonedDateTime start, ZonedDateTime end)
         {
-            return GetRelativeTime(start.LocalDateTime, end.ToOffsetDateTime().SwitchOffset(start.Offset).LocalDateTime, maxTerms);
+            return GetRelativeTime(start.LocalDateTime, end.ToOffsetDateTime().SwitchOffset(start.Offset).LocalDateTime);
         }
 
-        public static string GetRelativeTime(LocalDate start, LocalDate end, int maxTerms = 1)
+        public string GetRelativeTime(LocalDate start, LocalDate end)
         {
-            if (maxTerms < 1 || maxTerms > 3)
-                throw new ArgumentOutOfRangeException("maxTerms", "maxTerms must be between 1 and 3 when passing LocalDate values.");
-
-            return GetRelativeTime(start.AtMidnight(), end.AtMidnight(), maxTerms);
+            return GetRelativeTime(start.AtMidnight(), end.AtMidnight());
         }
 
-        public static string GetRelativeTime(LocalTime start, LocalTime end, int maxTerms = 1)
+        public string GetRelativeTime(LocalTime start, LocalTime end)
         {
-            return GetRelativeTime(start, end, PeriodUnits.DateAndTime, maxTerms);
+            return GetRelativeTime(start.LocalDateTime, end.LocalDateTime);
         }
 
-        public static string GetRelativeTime(LocalTime start, LocalTime end, PeriodUnits unitsToDisplay, int maxTerms = 1)
-        {
-            if (maxTerms < 1 || maxTerms > 3)
-                throw new ArgumentOutOfRangeException("maxTerms", "maxTerms must be between 1 and 3 when passing LocalTime values.");
-
-            return GetRelativeTime(start.LocalDateTime, end.LocalDateTime, unitsToDisplay, maxTerms);
-        }
-
-        public static string GetRelativeTime(LocalDateTime start, LocalDateTime end, int maxTerms = 1)
-        {
-            return GetRelativeTime(start, end, PeriodUnits.DateAndTime, maxTerms);
-        }
-
-        public static string GetRelativeTime(LocalDateTime start, LocalDateTime end, PeriodUnits unitsToDisplay, int maxTerms = 1)
+        public string GetRelativeTime(LocalDateTime start, LocalDateTime end)
         {
             if (start > end)
             {
@@ -77,12 +84,12 @@ namespace NodaTime.Humanization
                 start = t;
             }
 
-            var period = Period.Between(start, end, unitsToDisplay);
+            var period = Period.Between(start, end, this.UnitsToDisplay);
             var periodBuilder = period.ToBuilder();
 
             int terms = 0;
             var sb = new StringBuilder();
-            foreach (var unit in GetIndividualUnits(unitsToDisplay))
+            foreach (var unit in GetIndividualUnits(this.UnitsToDisplay))
             {
                 var value = (decimal)periodBuilder[unit];
                 if (value == 0)
@@ -95,7 +102,7 @@ namespace NodaTime.Humanization
                 }
 
                 terms++;
-                if (terms == maxTerms)
+                if (terms == this.MaxiumumNumberOfUnitsToDisplay)
                 {
                     switch (unit)
                     {
@@ -135,15 +142,15 @@ namespace NodaTime.Humanization
 
                 var textValue = value.ToString("0.#");
 
-                sb.Append(GetTextForUnit(unit, textValue));
+                sb.Append(this.GetTextForUnit(unit, textValue));
 
-                if (terms == maxTerms) break;
+                if (terms == this.MaxiumumNumberOfUnitsToDisplay) break;
             }
 
             return sb.ToString();
         }
 
-        private static IEnumerable<PeriodUnits> GetIndividualUnits(PeriodUnits units)
+        private IEnumerable<PeriodUnits> GetIndividualUnits(PeriodUnits units)
         {
             foreach (PeriodUnits unit in Enum.GetValues(typeof(PeriodUnits)))
             {
@@ -181,20 +188,20 @@ namespace NodaTime.Humanization
             }
         }
 
-        private static String GetTextForUnit(PeriodUnits unit, String textValue)
+        private String GetTextForUnit(PeriodUnits unit, String textValue)
         {
             //Depending on singular or plural, fetch different properties
             if (textValue == "1")
             {
-                return GetTextForUnitSingular(unit);
+                return this.GetTextForUnitSingular(unit);
             }
             else
             {
-                return String.Format(GetTextForUnitPlural(unit), textValue);
+                return String.Format(this.GetTextForUnitPlural(unit), textValue);
             }
         }
 
-        private static String GetTextForUnitSingular(PeriodUnits unit)
+        private String GetTextForUnitSingular(PeriodUnits unit)
         {
             switch (unit)
             {
@@ -222,7 +229,7 @@ namespace NodaTime.Humanization
             }
         }
 
-        private static String GetTextForUnitPlural(PeriodUnits unit)
+        private String GetTextForUnitPlural(PeriodUnits unit)
         {
             switch (unit)
             {
