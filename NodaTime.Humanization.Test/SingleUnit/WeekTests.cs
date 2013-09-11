@@ -24,7 +24,7 @@ namespace NodaTime.Humanization.Test.SingleUnit
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2013, 1, 11, 12, 0);
 
-            var result = new Humanizer(PeriodUnits.AllUnits).GetRelativeTime(start, end);
+            var result = new Humanizer(PeriodUnits.AllUnits, new HumanizerParameters.Builder().WithMaxiumumNumberOfUnitsToDisplay(1).Build()).GetRelativeTime(start, end);
 
             Assert.AreEqual("1.5 weeks", result);
         }

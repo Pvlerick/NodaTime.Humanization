@@ -85,18 +85,32 @@ namespace NodaTime.Humanization
                 start = t;
             }
 
-            var period = Period.Between(start, end, this.UnitsToDisplay);
+            //The units to display, in a list where we only take the first x
+            var unitsToDisplay = this.GetUnitsToDisplay()
+                                     //.Take(this.Parameters.MaxiumumNumberOfUnitsToDisplay)
+                                     .ToList();
+
+            //The last unit to display, important to know when to stop
+            var lastUnitToDisplay = unitsToDisplay.Last();
+
+            //The period has to use all the units to display plus the unit lower than the last one to allow rounding
+            //TODO: this will also have to be changed if we want to round all the way up
+            var period = Period.Between(start, end, this.UnitsToDisplay | this.GetLastUnitToCalculate(lastUnitToDisplay));
             var periodBuilder = period.ToBuilder();
 
-            int terms = 0;
-
             var sb = new StringBuilder();
-            foreach (var unit in this.GetIndividualUnitsToDisplay().Take(this.Parameters.MaxiumumNumberOfUnitsToDisplay))
+
+            //Only iterrate over the X first units to display as we will use the lowest limit (unitsToDisplay or maxNumberofUnitsToDisplay)
+            foreach (var unit in unitsToDisplay)
             {
                 var value = (decimal)periodBuilder[unit];
 
-                //If the value is zero and we  don't want to display zero values, move to the next
-                if (value == 0 && !this.Parameters.DisplayZeroValueUnits) continue;
+                //If the value is zero and we  don't want to display zero values, move to the next unit
+                if (value == 0 && !this.Parameters.DisplaySignificantZeroValueUnits)
+                {
+                    //May want to count that unit in the future - if we introduce a parameter for that purpose
+                    continue;
+                }
 
                 if (sb.Length > 0)
                 {
@@ -104,8 +118,9 @@ namespace NodaTime.Humanization
                     sb.AppendFormat(" {0} ", Properties.Resources.And);
                 }
 
-                terms++;
-                if (terms == this.Parameters.MaxiumumNumberOfUnitsToDisplay)
+                //If the current unit is the last unit that is display, we need to round what's left
+                //TODO: currently the code only rounds the unit just after the last, but it might be nice to round all the way up from milliseconds
+                if (unit == lastUnitToDisplay)
                 {
                     switch (unit)
                     {
@@ -146,14 +161,12 @@ namespace NodaTime.Humanization
                 var textValue = value.ToString("0.#");
 
                 sb.Append(this.GetTextForUnit(unit, textValue));
-
-                if (terms == this.Parameters.MaxiumumNumberOfUnitsToDisplay) break;
             }
 
             return sb.ToString();
         }
 
-        private IEnumerable<PeriodUnits> GetIndividualUnitsToDisplay()
+        private IEnumerable<PeriodUnits> GetUnitsToDisplay()
         {
             foreach (PeriodUnits unit in Enum.GetValues(typeof(PeriodUnits)))
             {
@@ -188,6 +201,33 @@ namespace NodaTime.Humanization
                             break;
                     }
                 }
+            }
+        }
+
+        private PeriodUnits GetLastUnitToCalculate(PeriodUnits lastUnitToDisplay)
+        {
+            //There might be a nicer way to write this...
+            switch (lastUnitToDisplay)
+            {
+                case PeriodUnits.Years:
+                    return PeriodUnits.Months;
+                case PeriodUnits.Months:
+                    //If UnitsToDisplay includes Weeks, the unit below Months is Weeks, otherwise it is Days
+                    return (this.UnitsToDisplay & PeriodUnits.Weeks) == PeriodUnits.Weeks ? PeriodUnits.Weeks : PeriodUnits.Days;
+                case PeriodUnits.Weeks:
+                    return PeriodUnits.Days;
+                case PeriodUnits.Days:
+                    return PeriodUnits.Hours;
+                case PeriodUnits.Hours:
+                    return PeriodUnits.Minutes;
+                case PeriodUnits.Minutes:
+                    return PeriodUnits.Seconds;
+                case PeriodUnits.Seconds:
+                    return PeriodUnits.Milliseconds;
+                case PeriodUnits.Milliseconds:
+                    return PeriodUnits.Milliseconds;
+                default:
+                    throw new ArgumentOutOfRangeException("lastUnitToDisplay");
             }
         }
 

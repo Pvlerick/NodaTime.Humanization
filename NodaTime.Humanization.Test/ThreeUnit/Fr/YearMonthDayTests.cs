@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NodaTime.Humanization.Test.ThreeUnit
+namespace NodaTime.Humanization.Test.ThreeUnit.Fr
 {
     [TestFixture]
     [SetCulture("fr-FR")]

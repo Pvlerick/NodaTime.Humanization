@@ -24,7 +24,7 @@ namespace NodaTime.Humanization.Test.SingleUnit
             var start = new LocalDateTime(2013, 1, 1, 0, 0, 0, 0);
             var end = new LocalDateTime(2013, 1, 1, 0, 0, 1, 499);
 
-            var result = new Humanizer().GetRelativeTime(start, end);
+            var result = new Humanizer(PeriodUnits.Seconds).GetRelativeTime(start, end);
 
             Assert.AreEqual("a second", result); // Should Round Down
         }
@@ -35,7 +35,7 @@ namespace NodaTime.Humanization.Test.SingleUnit
             var start = new LocalDateTime(2013, 1, 1, 0, 0, 0, 0);
             var end = new LocalDateTime(2013, 1, 1, 0, 0, 1, 500);
 
-            var result = new Humanizer().GetRelativeTime(start, end);
+            var result = new Humanizer(PeriodUnits.Seconds).GetRelativeTime(start, end);
 
             Assert.AreEqual("2 seconds", result); // Should Round Up
         }

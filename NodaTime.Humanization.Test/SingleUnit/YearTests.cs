@@ -19,7 +19,7 @@ namespace NodaTime.Humanization.Test.SingleUnit
         }
 
         [Test]
-        public void Can_Get_Relative_Time_For_OneAndAHalf_Years_UnitsToDisplay_Year()
+        public void Can_Get_Relative_Time_For_OneAndAHalf_Years_UnitsToDisplay_Years()
         {
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2014, 7, 1, 0, 0);
@@ -35,7 +35,7 @@ namespace NodaTime.Humanization.Test.SingleUnit
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2014, 7, 1, 0, 0);
 
-            var result = new Humanizer(PeriodUnits.Years).GetRelativeTime(start, end);
+            var result = new Humanizer(new HumanizerParameters.Builder().WithMaxiumumNumberOfUnitsToDisplay(1).Build()).GetRelativeTime(start, end);
 
             Assert.AreEqual("1.5 years", result);
         }

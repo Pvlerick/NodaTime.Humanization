@@ -9,7 +9,7 @@ namespace NodaTime.Humanization
     {
         //Default values for the parameters
         const int DefaultMaximumNumberOfUnitsToDisplay = 10;
-        const bool DefaultDisplayZeroValueUnits = false;
+        const bool DefaultDisplaySignificantsZeroValueUnits = false;
 
         /// <summary>
         /// This is the limit of number of units that will be returned in the resulting string.
@@ -17,16 +17,16 @@ namespace NodaTime.Humanization
         public int MaxiumumNumberOfUnitsToDisplay { get; private set; }
 
         /// <summary>
-        /// Indicates if zero value units are to be included in the result or not. For example, if the period has 0 days, is it included (and counted in the <see cref=" MaxiumumNumberOfUnitsToDisplay"/>).
+        /// Indicates if significant zero value units are to be included in the result or not. For example for a period of 1 months, 0 days and 2 hours, is the 0 day included (and counted in the <see cref=" MaxiumumNumberOfUnitsToDisplay"/>).
         /// </summary>
-        public bool DisplayZeroValueUnits { get; private set; }
+        public bool DisplaySignificantZeroValueUnits { get; private set; }
 
         private HumanizerParameters() { }
 
         public class Builder
         {
             private int maxiumumNumberOfUnitsToDisplay = DefaultMaximumNumberOfUnitsToDisplay;
-            private bool displayZeroValueUnits = DefaultDisplayZeroValueUnits;
+            private bool displaySignificantZeroValueUnits = DefaultDisplaySignificantsZeroValueUnits;
 
             public Builder WithMaxiumumNumberOfUnitsToDisplay(int maxiumumNumberOfUnitsToDisplay)
             {
@@ -34,9 +34,9 @@ namespace NodaTime.Humanization
                 return this;
             }
 
-            public Builder WithDisplayZeroValueUnits(bool displayZeroValueUnits)
+            public Builder WithDisplaySignificantZeroValueUnits(bool displaySignificantZeroValueUnits)
             {
-                this.displayZeroValueUnits = displayZeroValueUnits;
+                this.displaySignificantZeroValueUnits = displaySignificantZeroValueUnits;
                 return this;
             }
 
@@ -45,7 +45,7 @@ namespace NodaTime.Humanization
                 return new HumanizerParameters()
                 {
                     MaxiumumNumberOfUnitsToDisplay = this.maxiumumNumberOfUnitsToDisplay,
-                    DisplayZeroValueUnits = this.displayZeroValueUnits
+                    DisplaySignificantZeroValueUnits = this.displaySignificantZeroValueUnits
                 };
             }
         }

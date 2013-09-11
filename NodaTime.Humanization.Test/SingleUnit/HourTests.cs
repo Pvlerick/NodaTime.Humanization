@@ -24,7 +24,7 @@ namespace NodaTime.Humanization.Test.SingleUnit
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2013, 1, 1, 1, 30);
 
-            var result = new Humanizer().GetRelativeTime(start, end);
+            var result = new Humanizer(PeriodUnits.Hours).GetRelativeTime(start, end);
 
             Assert.AreEqual("1.5 hours", result);
         }

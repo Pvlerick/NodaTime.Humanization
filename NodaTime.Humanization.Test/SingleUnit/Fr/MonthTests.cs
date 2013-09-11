@@ -24,7 +24,7 @@ namespace NodaTime.Humanization.Test.SingleUnit.Fr
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2013, 2, 15, 0, 0);
 
-            var result = new Humanizer().GetRelativeTime(start, end);
+            var result = new Humanizer(PeriodUnits.Months).GetRelativeTime(start, end);
 
             Assert.AreEqual("1,5 mois", result);
         }

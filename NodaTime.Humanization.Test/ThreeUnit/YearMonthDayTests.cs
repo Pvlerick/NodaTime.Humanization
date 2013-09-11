@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace NodaTime.Humanization.Test.ThreeUnit.Fr
+namespace NodaTime.Humanization.Test.ThreeUnit
 {
     [TestFixture]
     [SetCulture("en-US")]
@@ -61,7 +61,7 @@ namespace NodaTime.Humanization.Test.ThreeUnit.Fr
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2014, 3, 6, 0, 0);
 
-            var result = new Humanizer().GetRelativeTime(start, end);
+            var result = new Humanizer(new HumanizerParameters.Builder().WithMaxiumumNumberOfUnitsToDisplay(2).Build()).GetRelativeTime(start, end);
 
             Assert.AreEqual("a year and 2.2 months", result);
         }
