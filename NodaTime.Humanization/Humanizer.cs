@@ -9,26 +9,27 @@ namespace NodaTime.Humanization
     public sealed class Humanizer
     {
         const PeriodUnits DefaultUnitsToDisplay = PeriodUnits.DateAndTime;
-        const int DefaultMaximumNumberOfUnitsToDisplay = 10;
 
         public PeriodUnits UnitsToDisplay { get; private set; }
-        public int MaxiumumNumberOfUnitsToDisplay { get; private set; }
+        public HumanizerParameters Parameters { get; private set; }
 
-        public Humanizer() : this(DefaultUnitsToDisplay, DefaultMaximumNumberOfUnitsToDisplay) { }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:NodaTime.Humanization.Humanizer" /> class.
+        /// </summary>
+        public Humanizer() : this(DefaultUnitsToDisplay, new HumanizerParameters.Builder().Build()) { }
 
-        public Humanizer(PeriodUnits unitsToDisplay) : this(unitsToDisplay, DefaultMaximumNumberOfUnitsToDisplay) { }
+        public Humanizer(PeriodUnits unitsToDisplay) : this(unitsToDisplay, new HumanizerParameters.Builder().Build()) { }
 
-        public Humanizer(int maximumNumberOfUnitsToDisplay) : this(DefaultUnitsToDisplay, maximumNumberOfUnitsToDisplay) { }
+        public Humanizer(HumanizerParameters parameters) : this(DefaultUnitsToDisplay, parameters) { }
 
-        public Humanizer(PeriodUnits unitsToDisplay, int maximumNumberOfUnitsToDisplay)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="T:NodaTime.Humanization.Humanizer" /> class.
+        /// </summary>
+        /// <param name="unitsToDisplay">The units to display in the result</param>
+        public Humanizer(PeriodUnits unitsToDisplay, HumanizerParameters parameters)
         {
-            if (maximumNumberOfUnitsToDisplay < 1)
-            {
-                throw new ArgumentOutOfRangeException("maximumNumberOfUnitsToDisplay", "maximumNumberOfUnitsToDisplay must be positive.");
-            }
-
             this.UnitsToDisplay = unitsToDisplay;
-            this.MaxiumumNumberOfUnitsToDisplay = maximumNumberOfUnitsToDisplay;
+            this.Parameters = parameters;
         }
 
         public string GetRelativeTime(Instant instant)
@@ -88,12 +89,14 @@ namespace NodaTime.Humanization
             var periodBuilder = period.ToBuilder();
 
             int terms = 0;
+
             var sb = new StringBuilder();
-            foreach (var unit in this.GetIndividualUnitsToDisplay())
+            foreach (var unit in this.GetIndividualUnitsToDisplay().Take(this.Parameters.MaxiumumNumberOfUnitsToDisplay))
             {
                 var value = (decimal)periodBuilder[unit];
-                if (value == 0)
-                    continue;
+
+                //If the value is zero and we  don't want to display zero values, move to the next
+                if (value == 0 && !this.Parameters.DisplayZeroValueUnits) continue;
 
                 if (sb.Length > 0)
                 {
@@ -102,7 +105,7 @@ namespace NodaTime.Humanization
                 }
 
                 terms++;
-                if (terms == this.MaxiumumNumberOfUnitsToDisplay)
+                if (terms == this.Parameters.MaxiumumNumberOfUnitsToDisplay)
                 {
                     switch (unit)
                     {
@@ -144,7 +147,7 @@ namespace NodaTime.Humanization
 
                 sb.Append(this.GetTextForUnit(unit, textValue));
 
-                if (terms == this.MaxiumumNumberOfUnitsToDisplay) break;
+                if (terms == this.Parameters.MaxiumumNumberOfUnitsToDisplay) break;
             }
 
             return sb.ToString();

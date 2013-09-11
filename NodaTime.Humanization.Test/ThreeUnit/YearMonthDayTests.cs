@@ -17,7 +17,7 @@ namespace NodaTime.Humanization.Test.ThreeUnit.Fr
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2015, 2, 7, 0, 0);
 
-            var result = new Humanizer(3).GetRelativeTime(start, end);
+            var result = new Humanizer().GetRelativeTime(start, end);
 
             Assert.AreEqual("2 years, a month and 6 days", result);
         }
@@ -28,7 +28,7 @@ namespace NodaTime.Humanization.Test.ThreeUnit.Fr
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2014, 2, 2, 0, 0);
 
-            var result = new Humanizer(3).GetRelativeTime(start, end);
+            var result = new Humanizer().GetRelativeTime(start, end);
 
             Assert.AreEqual("a year, a month and a day", result);
         }
@@ -61,7 +61,7 @@ namespace NodaTime.Humanization.Test.ThreeUnit.Fr
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2014, 3, 6, 0, 0);
 
-            var result = new Humanizer(2).GetRelativeTime(start, end);
+            var result = new Humanizer().GetRelativeTime(start, end);
 
             Assert.AreEqual("a year and 2.2 months", result);
         }

@@ -15,7 +15,7 @@ namespace NodaTime.Humanization.Test.SingleUnit
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2013, 1, 2, 0, 0);
 
-            var result = new Humanizer(1).GetRelativeTime(start, end);
+            var result = new Humanizer().GetRelativeTime(start, end);
 
             Assert.AreEqual("a day", result);
         }
@@ -26,7 +26,7 @@ namespace NodaTime.Humanization.Test.SingleUnit
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2013, 1, 2, 12, 0);
 
-            var result = new Humanizer(1).GetRelativeTime(start, end);
+            var result = new Humanizer().GetRelativeTime(start, end);
 
             Assert.AreEqual("1.5 days", result);
         }
@@ -37,7 +37,7 @@ namespace NodaTime.Humanization.Test.SingleUnit
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2013, 1, 3, 0, 0);
 
-            var result = new Humanizer(1).GetRelativeTime(start, end);
+            var result = new Humanizer().GetRelativeTime(start, end);
 
             Assert.AreEqual("2 days", result);
         }

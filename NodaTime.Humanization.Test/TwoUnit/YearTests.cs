@@ -13,7 +13,7 @@ namespace NodaTime.Humanization.Test.TwoUnit
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2014, 2, 1, 0, 0);
 
-            var result = new Humanizer(2).GetRelativeTime(start, end);
+            var result = new Humanizer().GetRelativeTime(start, end);
 
             Assert.AreEqual("a year and a month", result);
         }

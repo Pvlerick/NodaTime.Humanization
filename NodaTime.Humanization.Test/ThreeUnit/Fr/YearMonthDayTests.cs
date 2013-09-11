@@ -39,7 +39,7 @@ namespace NodaTime.Humanization.Test.ThreeUnit
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2015, 6, 7, 0, 0);
 
-            var result = new Humanizer(PeriodUnits.Years | PeriodUnits.Days, 2).GetRelativeTime(start, end);
+            var result = new Humanizer(PeriodUnits.Years | PeriodUnits.Days).GetRelativeTime(start, end);
 
             Assert.AreEqual("2 années et 157 jours", result);
         }
