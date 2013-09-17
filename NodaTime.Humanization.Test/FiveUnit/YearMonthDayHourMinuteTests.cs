@@ -12,7 +12,7 @@ namespace NodaTime.Humanization.Test.FiveUnit
     public class YearMonthDayHourMinuteTests
     {
         [Test]
-        public void Can_Get_Relative_Time_For_OneYearTwoMonthsFiveDaysTenHoursTwelveMinutes()
+        public void GetRelativeTime_OneYearTwoMonthsFiveDaysTenHoursTwelveMinutes()
         {
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2014, 3, 6, 10, 12);
@@ -23,7 +23,73 @@ namespace NodaTime.Humanization.Test.FiveUnit
         }
 
         [Test]
-        public void Can_Get_Relative_Time_For_OneYearTwoMonthsFiveDaysTenHoursTwelveMinutes_UnitsToDisplay_YearMonthDay()
+        public void GetRelativeTime_OneYearTwoMonthsFiveDaysTenHoursTwelveMinutes_MaximumUnitsToDisplay_1()
+        {
+            var start = new LocalDateTime(2013, 1, 1, 0, 0);
+            var end = new LocalDateTime(2014, 3, 6, 10, 12);
+
+            var result = new Humanizer(new HumanizerParameters.Builder().MaxiumumNumberOfUnitsToDisplay(1).Build()).GetRelativeTime(start, end);
+
+            Assert.AreEqual("1.2 years", result);
+        }
+
+        [Test]
+        public void GetRelativeTime_OneYearTwoMonthsFiveDaysTenHoursTwelveMinutes_MaximumUnitsToDisplay_2()
+        {
+            var start = new LocalDateTime(2013, 1, 1, 0, 0);
+            var end = new LocalDateTime(2014, 3, 6, 10, 12);
+
+            var result = new Humanizer(new HumanizerParameters.Builder().MaxiumumNumberOfUnitsToDisplay(2).Build()).GetRelativeTime(start, end);
+
+            Assert.AreEqual("a year and 2.2 months", result);
+        }
+
+        [Test]
+        public void GetRelativeTime_OneYearTwoMonthsFiveDaysTenHoursTwelveMinutes_MaximumUnitsToDisplay_3()
+        {
+            var start = new LocalDateTime(2013, 1, 1, 0, 0);
+            var end = new LocalDateTime(2014, 3, 6, 10, 12);
+
+            var result = new Humanizer(new HumanizerParameters.Builder().MaxiumumNumberOfUnitsToDisplay(3).Build()).GetRelativeTime(start, end);
+
+            Assert.AreEqual("a year, 2 months and 5.4 days", result);
+        }
+
+        [Test]
+        public void GetRelativeTime_OneYearTwoMonthsFiveDaysTenHoursTwelveMinutes_MaximumUnitsToDisplay_4()
+        {
+            var start = new LocalDateTime(2013, 1, 1, 0, 0);
+            var end = new LocalDateTime(2014, 3, 6, 10, 12);
+
+            var result = new Humanizer(new HumanizerParameters.Builder().MaxiumumNumberOfUnitsToDisplay(4).Build()).GetRelativeTime(start, end);
+
+            Assert.AreEqual("a year, 2 months, 5 days and 10.2 hours", result);
+        }
+
+        [Test]
+        public void GetRelativeTime_OneYearTwoMonthsFiveDaysTenHoursTwelveMinutes_MaximumUnitsToDisplay_5()
+        {
+            var start = new LocalDateTime(2013, 1, 1, 0, 0);
+            var end = new LocalDateTime(2014, 3, 6, 10, 12);
+
+            var result = new Humanizer(new HumanizerParameters.Builder().MaxiumumNumberOfUnitsToDisplay(5).Build()).GetRelativeTime(start, end);
+
+            Assert.AreEqual("a year, 2 months, 5 days, 10 hours and 12 minutes", result);
+        }
+
+        [Test]
+        public void GetRelativeTime_OneYearTwoMonthsFiveDaysTenHoursTwelveMinutes_MaximumUnitsToDisplay_6()
+        {
+            var start = new LocalDateTime(2013, 1, 1, 0, 0);
+            var end = new LocalDateTime(2014, 3, 6, 10, 12);
+
+            var result = new Humanizer(new HumanizerParameters.Builder().MaxiumumNumberOfUnitsToDisplay(6).Build()).GetRelativeTime(start, end);
+
+            Assert.AreEqual("a year, 2 months, 5 days, 10 hours and 12 minutes", result);
+        }
+
+        [Test]
+        public void GetRelativeTime_OneYearTwoMonthsFiveDaysTenHoursTwelveMinutes_UnitsToDisplay_YearMonthDay()
         {
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2014, 3, 6, 10, 12);
@@ -34,25 +100,69 @@ namespace NodaTime.Humanization.Test.FiveUnit
         }
 
         [Test]
-        public void Can_Get_Relative_Time_For_OneYearTwoMonthsFiveDaysTenHoursTwelveMinutes_MaximumUnitsToDisplay_3()
+        public void GetRelativeTime_OneYearTwoMonthsFiveDaysTenHoursTwelveMinutes_UnitsToDisplay_YearDay()
         {
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2014, 3, 6, 10, 12);
 
-            var result = new Humanizer(new HumanizerParameters.Builder().WithMaxiumumNumberOfUnitsToDisplay(3).Build()).GetRelativeTime(start, end);
+            var result = new Humanizer(PeriodUnits.Years | PeriodUnits.Days).GetRelativeTime(start, end);
 
-            Assert.AreEqual("a year, 2 months and 5.4 days", result);
+            Assert.AreEqual("a year and 64.4 days", result);
         }
 
         [Test]
-        public void Can_Get_Relative_Time_For_OneYearTwoMonthsFiveDaysTenHoursTwelveMinutes_MaximumUnitsToDisplay_4()
+        public void GetRelativeTime_OneYearTwoMonthsFiveDaysTenHoursTwelveMinutes_UnitsToDisplay_MonthDay()
         {
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2014, 3, 6, 10, 12);
 
-            var result = new Humanizer(new HumanizerParameters.Builder().WithMaxiumumNumberOfUnitsToDisplay(4).Build()).GetRelativeTime(start, end);
+            var result = new Humanizer(PeriodUnits.Months | PeriodUnits.Days).GetRelativeTime(start, end);
 
-            Assert.AreEqual("a year, 2 months, 5 days and 10.2 hours", result);
+            Assert.AreEqual("14 months and 5.4 days", result);
+        }
+
+        [Test]
+        public void GetRelativeTime_OneYearTwoMonthsFiveDaysTenHoursTwelveMinutes_UnitsToDisplay_Day()
+        {
+            var start = new LocalDateTime(2013, 1, 1, 0, 0);
+            var end = new LocalDateTime(2014, 3, 6, 10, 12);
+
+            var result = new Humanizer(PeriodUnits.Days).GetRelativeTime(start, end);
+
+            Assert.AreEqual("429.4 days", result);
+        }
+
+        [Test]
+        public void GetRelativeTime_OneYearTwoMonthsFiveDaysTenHoursTwelveMinutes_UnitsToDisplay_YearHours()
+        {
+            var start = new LocalDateTime(2013, 1, 1, 0, 0);
+            var end = new LocalDateTime(2014, 3, 6, 10, 12);
+
+            var result = new Humanizer(PeriodUnits.Years | PeriodUnits.Hours).GetRelativeTime(start, end);
+
+            Assert.AreEqual("a year and 1546.2 hours", result);
+        }
+
+        [Test]
+        public void GetRelativeTime_OneYearTwoMonthsFiveDaysTenHoursTwelveMinutes_UnitsToDisplay_YearSecond()
+        {
+            var start = new LocalDateTime(2013, 1, 1, 0, 0);
+            var end = new LocalDateTime(2014, 3, 6, 10, 12);
+
+            var result = new Humanizer(PeriodUnits.Years | PeriodUnits.Seconds).GetRelativeTime(start, end);
+
+            Assert.AreEqual("a year and 5566320 seconds", result);
+        }
+
+        [Test]
+        public void GetRelativeTime_OneYearTwoMonthsFiveDaysTenHoursTwelveMinutes_UnitsToDisplay_HourSecond()
+        {
+            var start = new LocalDateTime(2013, 1, 1, 0, 0);
+            var end = new LocalDateTime(2014, 3, 6, 10, 12);
+
+            var result = new Humanizer(PeriodUnits.Hours | PeriodUnits.Seconds).GetRelativeTime(start, end);
+
+            Assert.AreEqual("10306 hours and 720 seconds", result);
         }
     }
 }

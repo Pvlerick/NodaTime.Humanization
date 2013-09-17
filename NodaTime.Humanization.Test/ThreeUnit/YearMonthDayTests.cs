@@ -61,9 +61,31 @@ namespace NodaTime.Humanization.Test.ThreeUnit
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2014, 3, 6, 0, 0);
 
-            var result = new Humanizer(new HumanizerParameters.Builder().WithMaxiumumNumberOfUnitsToDisplay(2).Build()).GetRelativeTime(start, end);
+            var result = new Humanizer(new HumanizerParameters.Builder().MaxiumumNumberOfUnitsToDisplay(2).Build()).GetRelativeTime(start, end);
 
             Assert.AreEqual("a year and 2.2 months", result);
+        }
+
+        [Test]
+        public void GetRelativeTime_OneYearZeroMonthsFiveDays_UnitsToDisplay_YearMonthDay_DisplaySignificantZeroValueUnits()
+        {
+            var start = new LocalDateTime(2013, 1, 1, 0, 0);
+            var end = new LocalDateTime(2014, 1, 6, 0, 0);
+
+            var result = new Humanizer(PeriodUnits.Years | PeriodUnits.Months | PeriodUnits.Days , new HumanizerParameters.Builder().DisplaySignificantZeroValueUnits(true).Build()).GetRelativeTime(start, end);
+
+            Assert.AreEqual("a year, 0 months and 5 days", result);
+        }
+
+        [Test]
+        public void GetRelativeTime_OneYearZeroMonthsFiveDays_MaxiumumUnitsToDisplay_2_DisplaySignificantZeroValueUnits()
+        {
+            var start = new LocalDateTime(2013, 1, 1, 0, 0);
+            var end = new LocalDateTime(2014, 1, 6, 0, 0);
+
+            var result = new Humanizer(new HumanizerParameters.Builder().MaxiumumNumberOfUnitsToDisplay(2).DisplaySignificantZeroValueUnits(true).Build()).GetRelativeTime(start, end);
+
+            Assert.AreEqual("a year and 0.4 months", result);
         }
     }
 }

@@ -28,13 +28,13 @@ namespace NodaTime.Humanization
             private int maxiumumNumberOfUnitsToDisplay = DefaultMaximumNumberOfUnitsToDisplay;
             private bool displaySignificantZeroValueUnits = DefaultDisplaySignificantsZeroValueUnits;
 
-            public Builder WithMaxiumumNumberOfUnitsToDisplay(int maxiumumNumberOfUnitsToDisplay)
+            public Builder MaxiumumNumberOfUnitsToDisplay(int maxiumumNumberOfUnitsToDisplay)
             {
                 this.maxiumumNumberOfUnitsToDisplay = maxiumumNumberOfUnitsToDisplay;
                 return this;
             }
 
-            public Builder WithDisplaySignificantZeroValueUnits(bool displaySignificantZeroValueUnits)
+            public Builder DisplaySignificantZeroValueUnits(bool displaySignificantZeroValueUnits)
             {
                 this.displaySignificantZeroValueUnits = displaySignificantZeroValueUnits;
                 return this;

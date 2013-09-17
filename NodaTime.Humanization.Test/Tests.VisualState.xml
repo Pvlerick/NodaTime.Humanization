@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VisualState xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ShowCheckBoxes="false">
+  <TopNode>[0-1000]C:\Users\pvler_000\Documents\GitHub\NodaTime.Humanization\NodaTime.Humanization.Test\Tests.nunit</TopNode>
+  <SelectedNode>[0-1052]C:\Users\pvler_000\Documents\GitHub\NodaTime.Humanization\NodaTime.Humanization.Test\bin\Debug\NodaTime.Humanization.Test.dll</SelectedNode>
+  <ExcludeCategories>false</ExcludeCategories>
+  <Nodes>
+    <Node UniqueName="[0-1000]C:\Users\pvler_000\Documents\GitHub\NodaTime.Humanization\NodaTime.Humanization.Test\Tests.nunit" Expanded="true" />
+    <Node UniqueName="[0-1052]C:\Users\pvler_000\Documents\GitHub\NodaTime.Humanization\NodaTime.Humanization.Test\bin\Debug\NodaTime.Humanization.Test.dll" Expanded="true" />
+    <Node UniqueName="[0-1053]NodaTime" Expanded="true" />
+    <Node UniqueName="[0-1054]NodaTime.Humanization" Expanded="true" />
+    <Node UniqueName="[0-1055]NodaTime.Humanization.Test" Expanded="true" />
+    <Node UniqueName="[0-1056]NodaTime.Humanization.Test.FiveUnit" Expanded="true" />
+    <Node UniqueName="[0-1001]NodaTime.Humanization.Test.FiveUnit.YearMonthDayHourMinuteTests" Expanded="true" />
+    <Node UniqueName="[0-1057]NodaTime.Humanization.Test.SingleUnit" Expanded="true" />
+    <Node UniqueName="[0-1027]NodaTime.Humanization.Test.SingleUnit.DayTests" Expanded="true" />
+    <Node UniqueName="[0-1058]NodaTime.Humanization.Test.SingleUnit.Fr" Expanded="true" />
+    <Node UniqueName="[0-1006]NodaTime.Humanization.Test.SingleUnit.Fr.MonthTests" Expanded="true" />
+    <Node UniqueName="[0-1023]NodaTime.Humanization.Test.SingleUnit.HourTests" Expanded="true" />
+    <Node UniqueName="[0-1019]NodaTime.Humanization.Test.SingleUnit.MinuteTests" Expanded="true" />
+    <Node UniqueName="[0-1031]NodaTime.Humanization.Test.SingleUnit.MonthTests" Expanded="true" />
+    <Node UniqueName="[0-1014]NodaTime.Humanization.Test.SingleUnit.SecondTests" Expanded="true" />
+    <Node UniqueName="[0-1010]NodaTime.Humanization.Test.SingleUnit.WeekTests" Expanded="true" />
+    <Node UniqueName="[0-1035]NodaTime.Humanization.Test.SingleUnit.YearTests" Expanded="true" />
+    <Node UniqueName="[0-1059]NodaTime.Humanization.Test.ThreeUnit" Expanded="true" />
+    <Node UniqueName="[0-1060]NodaTime.Humanization.Test.ThreeUnit.Fr" Expanded="true" />
+    <Node UniqueName="[0-1040]NodaTime.Humanization.Test.ThreeUnit.Fr.YearMonthDayTests" Expanded="true" />
+    <Node UniqueName="[0-1044]NodaTime.Humanization.Test.ThreeUnit.YearMonthDayTests" Expanded="true" />
+    <Node UniqueName="[0-1061]NodaTime.Humanization.Test.TwoUnit" Expanded="true" />
+  </Nodes>
+</VisualState>
