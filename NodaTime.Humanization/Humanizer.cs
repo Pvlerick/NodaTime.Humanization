@@ -8,27 +8,46 @@ namespace NodaTime.Humanization
 {
     public sealed class Humanizer
     {
-        const PeriodUnits DefaultUnitsToDisplay = PeriodUnits.DateAndTime;
+        const PeriodUnits DefaultUnitsToDisplay = PeriodUnits.Years | PeriodUnits.Months | PeriodUnits.Days | PeriodUnits.Hours | PeriodUnits.Minutes | PeriodUnits.Seconds;
+        const int DefaultMaximumNumberOfUnitsToDisplay = 2;
 
+        /// <summary>
+        /// The <see cref="NodaTime.PeriodUnits"/> that have to be displayed in the final result.
+        /// </summary>
         public PeriodUnits UnitsToDisplay { get; private set; }
+
+        /// <summary>
+        /// The the limit of number of units that will be returned in the resulting string.
+        /// </summary>
+        public int MaxiumumNumberOfUnitsToDisplay { get; private set; }
+
         public HumanizerParameters Parameters { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:NodaTime.Humanization.Humanizer" /> class.
         /// </summary>
-        public Humanizer() : this(DefaultUnitsToDisplay, new HumanizerParameters.Builder().Build()) { }
+        public Humanizer() : this(DefaultUnitsToDisplay, DefaultMaximumNumberOfUnitsToDisplay, new HumanizerParameters.Builder().Build()) { }
 
-        public Humanizer(PeriodUnits unitsToDisplay) : this(unitsToDisplay, new HumanizerParameters.Builder().Build()) { }
+        public Humanizer(PeriodUnits unitsToDisplay) : this(unitsToDisplay, DefaultMaximumNumberOfUnitsToDisplay, new HumanizerParameters.Builder().Build()) { }
 
-        public Humanizer(HumanizerParameters parameters) : this(DefaultUnitsToDisplay, parameters) { }
+        public Humanizer(int maxiumumNumberOfUnitsToDisplay) : this(DefaultUnitsToDisplay, maxiumumNumberOfUnitsToDisplay, new HumanizerParameters.Builder().Build()) { }
+
+        public Humanizer(HumanizerParameters parameters) : this(DefaultUnitsToDisplay, DefaultMaximumNumberOfUnitsToDisplay, parameters) { }
+
+        public Humanizer(PeriodUnits unitsToDisplay, int maxiumumNumberOfUnitsToDisplay) : this(unitsToDisplay, maxiumumNumberOfUnitsToDisplay, new HumanizerParameters.Builder().Build()) { }
+
+        public Humanizer(PeriodUnits unitsToDisplay, HumanizerParameters parameters) : this(unitsToDisplay, DefaultMaximumNumberOfUnitsToDisplay, parameters) { }
+
+        public Humanizer(int maxiumumNumberOfUnitsToDisplay, HumanizerParameters parameters) : this(DefaultUnitsToDisplay, maxiumumNumberOfUnitsToDisplay, parameters) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="T:NodaTime.Humanization.Humanizer" /> class.
         /// </summary>
         /// <param name="unitsToDisplay">The units to display in the result</param>
-        public Humanizer(PeriodUnits unitsToDisplay, HumanizerParameters parameters)
+        public Humanizer(PeriodUnits unitsToDisplay, int maxiumumNumberOfUnitsToDisplay, HumanizerParameters parameters)
         {
             this.UnitsToDisplay = unitsToDisplay;
+            this.MaxiumumNumberOfUnitsToDisplay = maxiumumNumberOfUnitsToDisplay;
             this.Parameters = parameters;
         }
 
@@ -85,175 +104,172 @@ namespace NodaTime.Humanization
                 start = t;
             }
 
-            //The units to display, in a list where we only take the first x
-            var unitsToDisplay = this.GetDistinctUnits(this.UnitsToDisplay)
-                                     .Take(this.Parameters.MaxiumumNumberOfUnitsToDisplay)
-                                     .ToList();
+            var unitsForRounding = this.GetRequiredUnitsForRounding();
 
-            //The last unit to display, important to know when to stop
-            var lastUnitToDisplay = unitsToDisplay.Last();
-            var unitsToRoundWith = this.GetUnitsToRoundWith(lastUnitToDisplay);
-
-            //The period has to use all the units to display plus the unit lower than the last one to allow rounding
-            //TODO: this will also have to be changed if we want to round all the way up
-            var period = Period.Between(start, end, this.UnitsToDisplay | unitsToRoundWith);
+            //The period has to use all the units to display plus the unit just lower than the last one to allow rounding
+            var period = Period.Between(start, end, unitsForRounding);
             var periodBuilder = period.ToBuilder();
+
+            var significantUnits = this.GetSignificantUnitsForPeriod(period);
+            var lastUnitToDisplay = this.GetLastUnitToDisplay(significantUnits);
 
             var sb = new StringBuilder();
 
             //Only iterrate over the X first units to display as we will use the lowest limit (unitsToDisplay or maxNumberofUnitsToDisplay)
-            foreach (var unit in unitsToDisplay)
+            foreach (var unit in this.UnitsToDisplay.GetDistinctUnits())
             {
-                var value = (decimal)periodBuilder[unit];
-
-                //If the value is zero and we  don't want to display zero values, move to the next unit
-                //TODO this is bugged at the moment, in case we have a 0 between two valid values...
-                if (value == 0 && !this.Parameters.DisplaySignificantZeroValueUnits)
+                //if the unit is both to be displayed and significant in the period, we have to add it
+                if ((this.UnitsToDisplay & significantUnits & unit) == unit)
                 {
-                    //May want to count that unit in the future - if we introduce a parameter for that purpose
-                    continue;
-                }
+                    var value = (decimal)periodBuilder[unit];
 
-                if (sb.Length > 0)
-                {
-                    sb.Replace(String.Format(" {0} ", Properties.Resources.And), ", ");
-                    sb.AppendFormat(" {0} ", Properties.Resources.And);
-                }
+                    if (sb.Length > 0)
+                    {
+                        sb.Replace(String.Format(" {0} ", Properties.Resources.And), ", ");
+                        sb.AppendFormat(" {0} ", Properties.Resources.And);
+                    }
 
-                //Round what's left
-                //TODO: currently the code only rounds the unit just after the last, but it might be nice to round all the way up from milliseconds
-                if (unit == lastUnitToDisplay)
-                {
-                    value += this.GetRoundedValue(period, unitsToRoundWith, end);
-                }
-                else
-                {
-                    //Nothing to do, use the raw value
-                }
+                    //In case it's the last unit that we need to display, we need the fractional value of the unit just below,
+                    // rounded according to rules found in the parameter object
+                    if (unit == lastUnitToDisplay)
+                    {
+                        value += this.GetFractionalValueForLastUnit(period, end, lastUnitToDisplay);
+                    }
+                    else
+                    {
+                        //Nothing to do, use the raw value
+                    }
 
-                var textValue = value.ToString("0.#");
+                    var textValue = value.ToString("0.#");
 
-                sb.Append(this.GetTextForUnit(unit, textValue));
+                    sb.Append(this.GetTextForUnit(unit, textValue));
+                }
             }
 
             return sb.ToString();
         }
 
-        private decimal GetRoundedValue(Period period, PeriodUnits unitsToRoundWith, LocalDateTime end)
+        internal PeriodUnits GetSignificantUnitsForPeriod(Period period)
         {
-            decimal value = 0M;
+            PeriodUnits significantUnits = PeriodUnits.None;
+            int count = 0;
 
-            foreach (var unit in this.GetDistinctUnits(unitsToRoundWith).Take(1))
+            if (period.Years > 0)
             {
-                switch (unit)
-                {
-                    case PeriodUnits.Years:
-                        value += period.Months / 12M;
-                        break;
-
-                    case PeriodUnits.Months:
-                        // when counting by months, we give fractions in terms of the month we didn't complete.
-                        var daysInEndMonth = end.Calendar.GetDaysInMonth(end.Year, end.Month);
-                        value += period.Days / (decimal)daysInEndMonth;
-                        break;
-
-                    case PeriodUnits.Weeks:
-                        // when counting weeks, we need to take partial days into account to get values like "1.5 weeks"
-                        value += (period.Days + (period.Hours / 24M)) / 7M;
-                        break;
-
-                    case PeriodUnits.Days:
-                        value += period.Hours / 24M;
-                        break;
-
-                    case PeriodUnits.Hours:
-                        value += period.Minutes / 60M;
-                        break;
-
-                    case PeriodUnits.Minutes:
-                        value += period.Seconds / 60M;
-                        break;
-
-                    case PeriodUnits.Seconds:
-                        // no fractional seconds in results
-                        value += period.Milliseconds < 500 ? 0 : 1;
-                        break;
-                }
+                significantUnits = significantUnits | PeriodUnits.Years;
+                if (++count == this.MaxiumumNumberOfUnitsToDisplay) return significantUnits;
             }
 
-            return value;
-        }
-
-        /// <summary>
-        /// Returns the list of distinct units that are interesting to display, e.g.: Years, Months, Week, Days, Hours, Minutes, Seconds and Milliseconds.
-        /// </summary>
-        /// <param name="units">The units enumeration value to get the distinct units from</param>
-        /// <returns></returns>
-        private IEnumerable<PeriodUnits> GetDistinctUnits(PeriodUnits units)
-        {
-            foreach (PeriodUnits unit in Enum.GetValues(typeof(PeriodUnits))
-                                             .Cast<PeriodUnits>()
-                                             .Where(u => (units & u) == u))
+            if (period.Months > 0)
             {
-                //Only return the units that are useful, the rest is ignored
-                switch (unit)
-                {
-                    case PeriodUnits.Years:
-                        yield return PeriodUnits.Years;
-                        break;
-                    case PeriodUnits.Months:
-                        yield return PeriodUnits.Months;
-                        break;
-                    case PeriodUnits.Weeks:
-                        yield return PeriodUnits.Weeks;
-                        break;
-                    case PeriodUnits.Days:
-                        yield return PeriodUnits.Days;
-                        break;
-                    case PeriodUnits.Hours:
-                        yield return PeriodUnits.Hours;
-                        break;
-                    case PeriodUnits.Minutes:
-                        yield return PeriodUnits.Minutes;
-                        break;
-                    case PeriodUnits.Seconds:
-                        yield return PeriodUnits.Seconds;
-                        break;
-                    case PeriodUnits.Milliseconds:
-                        yield return PeriodUnits.Milliseconds;
-                        break;
-                }
+                significantUnits = significantUnits | PeriodUnits.Months;
+                if (++count == this.MaxiumumNumberOfUnitsToDisplay) return significantUnits;
             }
+
+            if (period.Weeks > 0)
+            {
+                significantUnits = significantUnits | PeriodUnits.Weeks;
+                if (++count == this.MaxiumumNumberOfUnitsToDisplay) return significantUnits;
+            }
+
+            if (period.Days > 0)
+            {
+                significantUnits = significantUnits | PeriodUnits.Days;
+                if (++count == this.MaxiumumNumberOfUnitsToDisplay) return significantUnits;
+            }
+
+            if (period.Hours > 0)
+            {
+                significantUnits = significantUnits | PeriodUnits.Hours;
+                if (++count == this.MaxiumumNumberOfUnitsToDisplay) return significantUnits;
+            }
+
+            if (period.Minutes > 0)
+            {
+                significantUnits = significantUnits | PeriodUnits.Minutes;
+                if (++count == this.MaxiumumNumberOfUnitsToDisplay) return significantUnits;
+            }
+
+            if (period.Seconds > 0)
+            {
+                significantUnits = significantUnits | PeriodUnits.Seconds;
+                if (++count == this.MaxiumumNumberOfUnitsToDisplay) return significantUnits;
+            }
+
+            if (period.Milliseconds > 0)
+            {
+                significantUnits = significantUnits | PeriodUnits.Milliseconds;
+                if (++count == this.MaxiumumNumberOfUnitsToDisplay) return significantUnits;
+            }
+
+            return significantUnits;
         }
 
-        /// <summary>
-        /// Returns the units that have to be taken into account for rounding up the last unit that needs to be displayed.
-        /// </summary>
-        /// <param name="lastUnitToDisplay">The last unit that has to be displayed in the final output.</param>
-        /// <returns></returns>
-        private PeriodUnits GetUnitsToRoundWith(PeriodUnits lastUnitToDisplay)
+        //TODO A few unit tests to be added here, just to make a point :-)
+        internal PeriodUnits GetLastUnitToDisplay(PeriodUnits significantUnits)
         {
-            switch (lastUnitToDisplay)
+            if ((this.UnitsToDisplay & significantUnits & PeriodUnits.Milliseconds) == PeriodUnits.Milliseconds) return PeriodUnits.Milliseconds;
+            else if ((this.UnitsToDisplay & significantUnits & PeriodUnits.Seconds) == PeriodUnits.Seconds) return PeriodUnits.Seconds;
+            else if ((this.UnitsToDisplay & significantUnits & PeriodUnits.Minutes) == PeriodUnits.Minutes) return PeriodUnits.Minutes;
+            else if ((this.UnitsToDisplay & significantUnits & PeriodUnits.Hours) == PeriodUnits.Hours) return PeriodUnits.Hours;
+            else if ((this.UnitsToDisplay & significantUnits & PeriodUnits.Days) == PeriodUnits.Days) return PeriodUnits.Days;
+            else if ((this.UnitsToDisplay & significantUnits & PeriodUnits.Weeks) == PeriodUnits.Weeks) return PeriodUnits.Weeks;
+            else if ((this.UnitsToDisplay & significantUnits & PeriodUnits.Months) == PeriodUnits.Months) return PeriodUnits.Months;
+            else if ((this.UnitsToDisplay & significantUnits & PeriodUnits.Years) == PeriodUnits.Years) return PeriodUnits.Years;
+            
+            //If nothing was found, there is no common unit between UnitsToDisplay and significantsUnits... Let's simply return the smallest unit in UnitsToDisplay.
+            return this.UnitsToDisplay.GetSmallestSingleUnit();
+        }
+
+        //TODO This should be unit tested, although it looks correct - just to have a safety net in case it is changed later
+        internal decimal GetFractionalValueForLastUnit(Period period, LocalDateTime end, PeriodUnits lastUnit)
+        {
+            switch (lastUnit)
             {
                 case PeriodUnits.Years:
-                    return PeriodUnits.Months | PeriodUnits.Days | PeriodUnits.HourMinuteSecond | PeriodUnits.Milliseconds;
+                    return period.Months / 12M;
+
                 case PeriodUnits.Months:
-                    return PeriodUnits.Days | PeriodUnits.HourMinuteSecond | PeriodUnits.Milliseconds;
+                    // when counting by months, we give fractions in terms of the month we didn't complete.
+                    var daysInEndMonth = end.Calendar.GetDaysInMonth(end.Year, end.Month);
+                    return period.Days / (decimal)daysInEndMonth;
+
                 case PeriodUnits.Weeks:
-                    return PeriodUnits.Days | PeriodUnits.HourMinuteSecond | PeriodUnits.Milliseconds;
+                    // when counting weeks, we need to take partial days into account to get values like "1.5 weeks"
+                    return (period.Days + (period.Hours / 24M)) / 7M;
+
                 case PeriodUnits.Days:
-                    return PeriodUnits.HourMinuteSecond | PeriodUnits.Milliseconds;
+                    return period.Hours / 24M;
+
                 case PeriodUnits.Hours:
-                    return PeriodUnits.Minutes | PeriodUnits.Seconds | PeriodUnits.Milliseconds;
+                    return period.Minutes / 60M;
+
                 case PeriodUnits.Minutes:
-                    return PeriodUnits.Seconds | PeriodUnits.Milliseconds;
+                    return period.Seconds / 60M;
+
                 case PeriodUnits.Seconds:
-                    return PeriodUnits.Milliseconds;
-                case PeriodUnits.Milliseconds:
-                    return PeriodUnits.None;
+                    // no fractional seconds in results
+                    return period.Milliseconds < 500 ? 0 : 1;
                 default:
-                    throw new ArgumentOutOfRangeException("lastUnitToDisplay");
+                    return 0M;
             }
+        }
+
+        /// <summary>
+        /// Adds to the given PeriodUnits the single unit that is smaller than the smallest present single unit, e.g.: Days | Hours will return Days | Hours | Minutes.
+        /// </summary>
+        /// <returns>The PeriodUnits augmented with a single unit.</returns>
+        internal PeriodUnits GetRequiredUnitsForRounding()
+        {
+            if (this.UnitsToDisplay.Contains(PeriodUnits.Milliseconds)) return this.UnitsToDisplay; //Already have the lowest unit
+            else if (this.UnitsToDisplay.Contains(PeriodUnits.Seconds)) return this.UnitsToDisplay | PeriodUnits.Milliseconds;
+            else if (this.UnitsToDisplay.Contains(PeriodUnits.Minutes)) return this.UnitsToDisplay | PeriodUnits.Seconds;
+            else if (this.UnitsToDisplay.Contains(PeriodUnits.Hours)) return this.UnitsToDisplay | PeriodUnits.Minutes;
+            else if (this.UnitsToDisplay.Contains(PeriodUnits.Days)) return this.UnitsToDisplay | PeriodUnits.Hours;
+            else if (this.UnitsToDisplay.Contains(PeriodUnits.Weeks)) return this.UnitsToDisplay | PeriodUnits.Days | PeriodUnits.Hours; //Round weeks with days and hours
+            else if (this.UnitsToDisplay.Contains(PeriodUnits.Months)) return this.UnitsToDisplay | PeriodUnits.Days;
+            else if (this.UnitsToDisplay.Contains(PeriodUnits.Years)) return this.UnitsToDisplay | PeriodUnits.Months;
+            else return this.UnitsToDisplay;
         }
 
         private String GetTextForUnit(PeriodUnits unit, String textValue)
@@ -292,8 +308,7 @@ namespace NodaTime.Humanization
                 case PeriodUnits.Years:
                     return Properties.Resources.OneYear;
                 default:
-                    //Shouldnt land in here...
-                    return String.Empty;
+                    throw new ArgumentOutOfRangeException("unit", "GetTextForUnitSingular only takes a single unit");
             }
         }
 
@@ -320,8 +335,7 @@ namespace NodaTime.Humanization
                 case PeriodUnits.Years:
                     return Properties.Resources.ManyYears;
                 default:
-                    //Shouldnt land in here...
-                    return String.Empty;
+                    throw new ArgumentOutOfRangeException("unit", "GetTextForUnitPlural only takes a single unit");
             }
         }
     }

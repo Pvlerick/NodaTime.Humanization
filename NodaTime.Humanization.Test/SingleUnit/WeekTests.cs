@@ -35,7 +35,7 @@ namespace NodaTime.Humanization.Test.SingleUnit
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2013, 1, 11, 12, 0); //Three days an 12 hours is half a week
 
-            var result = new Humanizer(PeriodUnits.AllUnits, new HumanizerParameters.Builder().MaxiumumNumberOfUnitsToDisplay(1).Build()).GetRelativeTime(start, end);
+            var result = new Humanizer(PeriodUnits.AllUnits, 1).GetRelativeTime(start, end);
 
             Assert.AreEqual("1.5 weeks", result);
         }
@@ -46,7 +46,7 @@ namespace NodaTime.Humanization.Test.SingleUnit
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2013, 1, 8, 0, 0);
 
-            var result = new Humanizer(PeriodUnits.AllUnits, new HumanizerParameters.Builder().MaxiumumNumberOfUnitsToDisplay(2).Build()).GetRelativeTime(start, end);
+            var result = new Humanizer(PeriodUnits.AllUnits, 2).GetRelativeTime(start, end);
 
             Assert.AreEqual("a week", result);
         }

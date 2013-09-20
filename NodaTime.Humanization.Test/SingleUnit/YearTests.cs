@@ -35,7 +35,7 @@ namespace NodaTime.Humanization.Test.SingleUnit
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2014, 7, 1, 0, 0);
 
-            var result = new Humanizer(new HumanizerParameters.Builder().MaxiumumNumberOfUnitsToDisplay(1).Build()).GetRelativeTime(start, end);
+            var result = new Humanizer(1).GetRelativeTime(start, end);
 
             Assert.AreEqual("1.5 years", result);
         }

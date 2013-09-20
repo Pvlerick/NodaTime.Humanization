@@ -8,7 +8,7 @@ namespace NodaTime.Humanization.Test.SingleUnit
     public class HourTests
     {
         [Test]
-        public void Can_Get_Relative_Time_For_One_Hour()
+        public void GetRelativeTime_OneHour()
         {
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2013, 1, 1, 1, 0);
@@ -19,7 +19,7 @@ namespace NodaTime.Humanization.Test.SingleUnit
         }
 
         [Test]
-        public void Can_Get_Relative_Time_For_OneAndAHalf_Hours()
+        public void GetRelativeTime_OneAndAHalfHours()
         {
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2013, 1, 1, 1, 30);
@@ -30,7 +30,7 @@ namespace NodaTime.Humanization.Test.SingleUnit
         }
 
         [Test]
-        public void Can_Get_Relative_Time_For_Two_Hours()
+        public void GetRelativeTime_TwoHours()
         {
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2013, 1, 1, 2, 0);

@@ -28,7 +28,7 @@ namespace NodaTime.Humanization.Test.FiveUnit
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2014, 3, 6, 10, 12);
 
-            var result = new Humanizer(new HumanizerParameters.Builder().MaxiumumNumberOfUnitsToDisplay(1).Build()).GetRelativeTime(start, end);
+            var result = new Humanizer(1).GetRelativeTime(start, end);
 
             Assert.AreEqual("1.2 years", result);
         }
@@ -39,7 +39,7 @@ namespace NodaTime.Humanization.Test.FiveUnit
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2014, 3, 6, 10, 12);
 
-            var result = new Humanizer(new HumanizerParameters.Builder().MaxiumumNumberOfUnitsToDisplay(2).Build()).GetRelativeTime(start, end);
+            var result = new Humanizer(2).GetRelativeTime(start, end);
 
             Assert.AreEqual("a year and 2.2 months", result);
         }
@@ -50,7 +50,7 @@ namespace NodaTime.Humanization.Test.FiveUnit
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2014, 3, 6, 10, 12);
 
-            var result = new Humanizer(new HumanizerParameters.Builder().MaxiumumNumberOfUnitsToDisplay(3).Build()).GetRelativeTime(start, end);
+            var result = new Humanizer(3).GetRelativeTime(start, end);
 
             Assert.AreEqual("a year, 2 months and 5.4 days", result);
         }
@@ -61,7 +61,7 @@ namespace NodaTime.Humanization.Test.FiveUnit
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2014, 3, 6, 10, 12);
 
-            var result = new Humanizer(new HumanizerParameters.Builder().MaxiumumNumberOfUnitsToDisplay(4).Build()).GetRelativeTime(start, end);
+            var result = new Humanizer(4).GetRelativeTime(start, end);
 
             Assert.AreEqual("a year, 2 months, 5 days and 10.2 hours", result);
         }
@@ -72,7 +72,7 @@ namespace NodaTime.Humanization.Test.FiveUnit
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2014, 3, 6, 10, 12);
 
-            var result = new Humanizer(new HumanizerParameters.Builder().MaxiumumNumberOfUnitsToDisplay(5).Build()).GetRelativeTime(start, end);
+            var result = new Humanizer(5).GetRelativeTime(start, end);
 
             Assert.AreEqual("a year, 2 months, 5 days, 10 hours and 12 minutes", result);
         }
@@ -83,7 +83,7 @@ namespace NodaTime.Humanization.Test.FiveUnit
             var start = new LocalDateTime(2013, 1, 1, 0, 0);
             var end = new LocalDateTime(2014, 3, 6, 10, 12);
 
-            var result = new Humanizer(new HumanizerParameters.Builder().MaxiumumNumberOfUnitsToDisplay(6).Build()).GetRelativeTime(start, end);
+            var result = new Humanizer(6).GetRelativeTime(start, end);
 
             Assert.AreEqual("a year, 2 months, 5 days, 10 hours and 12 minutes", result);
         }
