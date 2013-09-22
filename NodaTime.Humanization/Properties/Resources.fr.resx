@@ -145,7 +145,7 @@
     <value>{0} semaines</value>
   </data>
   <data name="ManyYears" xml:space="preserve">
-    <value>{0} années</value>
+    <value>{0} ans</value>
   </data>
   <data name="OneDay" xml:space="preserve">
     <value>un jour</value>

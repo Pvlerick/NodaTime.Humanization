@@ -48,20 +48,9 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="FiveUnit\YearMonthDayHourMinuteTests.cs" />
     <Compile Include="HumanizerTest.cs" />
-    <Compile Include="SingleUnit\Fr\MonthTests.cs" />
-    <Compile Include="SingleUnit\WeekTests.cs" />
-    <Compile Include="SingleUnit\SecondTests.cs" />
-    <Compile Include="SingleUnit\MinuteTests.cs" />
-    <Compile Include="SingleUnit\HourTests.cs" />
-    <Compile Include="SingleUnit\DayTests.cs" />
-    <Compile Include="SingleUnit\MonthTests.cs" />
-    <Compile Include="SingleUnit\YearTests.cs" />
+    <Compile Include="Fr\HumanizerTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ThreeUnit\Fr\YearMonthDayTests.cs" />
-    <Compile Include="ThreeUnit\YearMonthDayTests.cs" />
-    <Compile Include="TwoUnit\YearTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

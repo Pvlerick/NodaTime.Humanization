@@ -60,14 +60,11 @@ namespace NodaTime.Humanization
         {
             var now = clock.Now;
 
-            if (instant == now)
-                return Properties.Resources.RightNow;
+            if (instant == now) return Properties.Resources.RightNow;
 
             var periodText = GetRelativeTime(instant, now);
 
-            return instant < now
-                ? String.Format(Properties.Resources.PeriodPast, periodText)
-                : String.Format(Properties.Resources.PeriodFuture, periodText);
+            return String.Format(instant < now ? Properties.Resources.PeriodPast : Properties.Resources.PeriodFuture, periodText);
         }
 
         public string GetRelativeTime(Instant start, Instant end)
@@ -119,28 +116,26 @@ namespace NodaTime.Humanization
             foreach (var unit in this.UnitsToDisplay.GetDistinctUnits())
             {
                 //if the unit is both to be displayed and significant in the period, we have to add it
-                if ((this.UnitsToDisplay & significantUnits & unit) == unit)
+                if (this.UnitsToDisplay.Contains(unit) & significantUnits.Contains(unit))
                 {
-                    var value = (decimal)periodBuilder[unit];
-
                     if (sb.Length > 0)
                     {
-                        sb.Replace(String.Format(" {0} ", Properties.Resources.And), ", ");
-                        sb.AppendFormat(" {0} ", Properties.Resources.And);
+                        if (unit == lastUnitToDisplay) sb.AppendFormat(" {0} ", Properties.Resources.And);
+                        else sb.Append(", ");
                     }
 
-                    //In case it's the last unit that we need to display, we need the fractional value of the unit just below,
+                    var value = (decimal)periodBuilder[unit];
+
+                    //In case it's the last unit that we need to display and we want after decimal point digits, we need the fractional value of the unit just below,
                     // rounded according to rules found in the parameter object
-                    if (unit == lastUnitToDisplay)
+                    if (unit == lastUnitToDisplay
+                        && this.Parameters.DigitsAfterDecimalPoint > 0)
                     {
                         value += this.GetFractionalValueForLastUnit(period, end, lastUnitToDisplay);
-                    }
-                    else
-                    {
-                        //Nothing to do, use the raw value
+                        value = Math.Round(value, this.Parameters.DigitsAfterDecimalPoint);
                     }
 
-                    var textValue = value.ToString("0.#");
+                    var textValue = value.ToString();
 
                     sb.Append(this.GetTextForUnit(unit, textValue));
                 }
@@ -151,55 +146,26 @@ namespace NodaTime.Humanization
 
         internal PeriodUnits GetSignificantUnitsForPeriod(Period period)
         {
+            var baseValues = new[] {
+                new { Unit = PeriodUnits.Years, Value = period.Years },
+                new { Unit = PeriodUnits.Months, Value = period.Months },
+                new { Unit = PeriodUnits.Weeks, Value = period.Weeks },
+                new { Unit = PeriodUnits.Days, Value = period.Days },
+                new { Unit = PeriodUnits.Hours, Value = period.Hours },
+                new { Unit = PeriodUnits.Minutes, Value = period.Minutes },
+                new { Unit = PeriodUnits.Seconds, Value = period.Seconds },
+                new { Unit = PeriodUnits.Milliseconds, Value = period.Milliseconds }
+            }.ToList();
+
+            var values = this.Parameters.DisplaySignificantZeroValueUnits
+                ? baseValues.SkipWhile(a => a.Value == 0).Reverse().SkipWhile(a => a.Value == 0).Reverse().Take(this.MaxiumumNumberOfUnitsToDisplay)
+                : baseValues.Where(a => a.Value != 0).Take(this.MaxiumumNumberOfUnitsToDisplay);
+
             PeriodUnits significantUnits = PeriodUnits.None;
-            int count = 0;
 
-            if (period.Years > 0)
+            foreach (var item in values)
             {
-                significantUnits = significantUnits | PeriodUnits.Years;
-                if (++count == this.MaxiumumNumberOfUnitsToDisplay) return significantUnits;
-            }
-
-            if (period.Months > 0)
-            {
-                significantUnits = significantUnits | PeriodUnits.Months;
-                if (++count == this.MaxiumumNumberOfUnitsToDisplay) return significantUnits;
-            }
-
-            if (period.Weeks > 0)
-            {
-                significantUnits = significantUnits | PeriodUnits.Weeks;
-                if (++count == this.MaxiumumNumberOfUnitsToDisplay) return significantUnits;
-            }
-
-            if (period.Days > 0)
-            {
-                significantUnits = significantUnits | PeriodUnits.Days;
-                if (++count == this.MaxiumumNumberOfUnitsToDisplay) return significantUnits;
-            }
-
-            if (period.Hours > 0)
-            {
-                significantUnits = significantUnits | PeriodUnits.Hours;
-                if (++count == this.MaxiumumNumberOfUnitsToDisplay) return significantUnits;
-            }
-
-            if (period.Minutes > 0)
-            {
-                significantUnits = significantUnits | PeriodUnits.Minutes;
-                if (++count == this.MaxiumumNumberOfUnitsToDisplay) return significantUnits;
-            }
-
-            if (period.Seconds > 0)
-            {
-                significantUnits = significantUnits | PeriodUnits.Seconds;
-                if (++count == this.MaxiumumNumberOfUnitsToDisplay) return significantUnits;
-            }
-
-            if (period.Milliseconds > 0)
-            {
-                significantUnits = significantUnits | PeriodUnits.Milliseconds;
-                if (++count == this.MaxiumumNumberOfUnitsToDisplay) return significantUnits;
+                significantUnits = significantUnits | item.Unit;
             }
 
             return significantUnits;
